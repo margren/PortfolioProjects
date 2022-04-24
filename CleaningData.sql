@@ -28,12 +28,12 @@ FROM NashvilleHousing
 --WHERE PropertyAddress IS NULL
 ORDER BY ParcelID --Parcel ID is linked to a property addressy
 
--- So we are going to "link" null address to their parcel id if the parcel id appears several times
+
 SELECT a.[UniqueID ], a.ParcelID, a.PropertyAddress, b.[UniqueID ], b.ParcelID, b.PropertyAddress, ISNULL(a.PropertyAddress, b.PropertyAddress)
 FROM NashvilleHousing a
 JOIN NashvilleHousing b
-	ON a.ParcelID = b.ParcelID			-- That way ParcelID might be the same 
-	AND a.[UniqueID ] <> b.[UniqueID ]	-- but UniqueID is not, meaning the 2 tables aren't pointing at the same line
+	ON a.ParcelID = b.ParcelID 
+	AND a.[UniqueID ] <> b.[UniqueID ]
 WHERE a.PropertyAddress IS NULL
 
 
@@ -58,17 +58,14 @@ FROM NashvilleHousing
 -- You notice there is a comma delimitating the address from the city
 
 
-SELECT SUBSTRING(PropertyAddress, 1, CHARINDEX(',', PropertyAddress)) AS Address	-- 1 is the starting position
-																					-- CHARINDEX will look for a specific char or string. 2nd arg is where we are looking
--- ,CHARINDEX(',', PropertyAddress)	-- Index for the ','
+SELECT SUBSTRING(PropertyAddress, 1, CHARINDEX(',', PropertyAddress)) AS Address
+-- ,CHARINDEX(',', PropertyAddress)
 FROM NashvilleHousing
 
 
--- To get rid of that comma, decrement the index position
 SELECT SUBSTRING(PropertyAddress, 1, CHARINDEX(',', PropertyAddress)-1) AS Address
 FROM NashvilleHousing
 
--- Same for the city, increment the index so that you're after the comma
 SELECT SUBSTRING(PropertyAddress, 1, CHARINDEX(',', PropertyAddress)-1) AS Address,
 SUBSTRING(PropertyAddress, CHARINDEX(',', PropertyAddress)+1, LEN(PropertyAddress)) AS City
 FROM NashvilleHousing
@@ -77,13 +74,11 @@ FROM NashvilleHousing
 
 ALTER TABLE NashvilleHousing
 ADD PropertySplitAddress VARCHAR(255);
-
 ALTER TABLE NashvilleHousing
 ADD PropertySplitCity VARCHAR(255);
 
 UPDATE NashvilleHousing
 SET PropertySplitAddress = SUBSTRING(PropertyAddress, 1, CHARINDEX(',', PropertyAddress)-1)
-
 UPDATE NashvilleHousing
 SET PropertySplitCity = SUBSTRING(PropertyAddress, CHARINDEX(',', PropertyAddress)+1, LEN(PropertyAddress))
 
@@ -99,9 +94,9 @@ FROM NashvilleHousing
 SELECT OwnerAddress
 FROM NashvilleHousing
 
-SELECT PARSENAME(REPLACE(OwnerAddress, ',', '.'), 1),	-- PARSENAME is useful for delimited value (but only for periods)
-PARSENAME(REPLACE(OwnerAddress, ',', '.'), 2),			-- so we use REPLACE to change commas to periods
-PARSENAME(REPLACE(OwnerAddress, ',', '.'), 3)			-- Careful that PARSENAME splits the != elements backwards...
+SELECT PARSENAME(REPLACE(OwnerAddress, ',', '.'), 1),
+PARSENAME(REPLACE(OwnerAddress, ',', '.'), 2),		
+PARSENAME(REPLACE(OwnerAddress, ',', '.'), 3)
 FROM NashvilleHousing
 
 
@@ -166,13 +161,13 @@ GROUP BY SoldAsVacant
 WITH RowNumCTE AS(
 SELECT *,
 	ROW_NUMBER() OVER(
-	PARTITION BY	ParcelID, 				-- We need to PARTITION BY something unique
-					PropertyAddress,
-					SalePrice,
-					SaleDate,
-					LegalReference
-					ORDER BY UniqueID
-					) row_num
+	PARTITION BY	ParcelID, 				
+			PropertyAddress,
+			SalePrice,
+			SaleDate,
+			LegalReference
+			ORDER BY UniqueID
+			) row_num
 FROM NashvilleHousing
 --ORDER BY ParcelID
 )
@@ -187,13 +182,13 @@ FROM NashvilleHousing
 WITH RowNumCTE AS(
 SELECT *,
 	ROW_NUMBER() OVER(
-	PARTITION BY	ParcelID, 				-- We need to PARTITION BY something unique
-					PropertyAddress,
-					SalePrice,
-					SaleDate,
-					LegalReference
-					ORDER BY UniqueID
-					) row_num
+	PARTITION BY	ParcelID, 				
+			PropertyAddress,
+			SalePrice,
+			SaleDate,
+			LegalReference
+			ORDER BY UniqueID
+			) row_num
 FROM NashvilleHousing
 --ORDER BY ParcelID
 )
